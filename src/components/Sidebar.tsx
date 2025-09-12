@@ -89,17 +89,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, language, 
         })}
       </nav>
 
-      {!isCollapsed && (
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-slate-800 rounded-lg p-3">
-            <div className="flex items-center space-x-2">
-              <Bell className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm">{t.notifications}</span>
-            </div>
-            <p className="text-xs text-slate-400 mt-1">3 laporan baru</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

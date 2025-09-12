@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Globe, Bell, User, LogOut } from 'lucide-react';
+import { Menu, X, Globe, Bell, User, LogOut, AlertTriangle, Users, FileText } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ReportsManager from './components/ReportsManager';
@@ -226,11 +226,75 @@ function App() {
               </button>
 
               {/* Notifications */}
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors group">
                 <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   3
                 </span>
+                
+                {/* Notification Dropdown */}
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        {language === 'id' ? 'Notifikasi Terbaru' : 'Recent Notifications'}
+                      </h3>
+                      <span className="text-xs text-gray-500">3 {language === 'id' ? 'baru' : 'new'}</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                        <div className="bg-red-100 p-1 rounded-full">
+                          <AlertTriangle className="w-3 h-3 text-red-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900">
+                            {language === 'id' ? 'Laporan Prioritas Tinggi' : 'High Priority Report'}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {language === 'id' ? 'Dugaan penyalahgunaan dana operasional' : 'Suspected misuse of operational funds'}
+                          </p>
+                          <p className="text-xs text-gray-400">2 {language === 'id' ? 'jam lalu' : 'hours ago'}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                        <div className="bg-orange-100 p-1 rounded-full">
+                          <Users className="w-3 h-3 text-orange-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900">
+                            {language === 'id' ? 'Laporan Pelecehan' : 'Harassment Report'}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {language === 'id' ? 'Pelecehan di tempat kerja' : 'Workplace harassment incident'}
+                          </p>
+                          <p className="text-xs text-gray-400">4 {language === 'id' ? 'jam lalu' : 'hours ago'}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                        <div className="bg-blue-100 p-1 rounded-full">
+                          <FileText className="w-3 h-3 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900">
+                            {language === 'id' ? 'Laporan Baru' : 'New Report'}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {language === 'id' ? 'Pelanggaran prosedur keamanan' : 'Security procedure violation'}
+                          </p>
+                          <p className="text-xs text-gray-400">6 {language === 'id' ? 'jam lalu' : 'hours ago'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <button 
+                        onClick={() => setCurrentView('reports')}
+                        className="w-full text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        {language === 'id' ? 'Lihat Semua Laporan' : 'View All Reports'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </button>
 
               {/* User Menu */}
