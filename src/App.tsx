@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Globe, Bell, User, LogOut, AlertTriangle, Users, FileText } from 'lucide-react';
+import { useUsers, useReports, useDashboardStats } from './hooks/useSupabase';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ReportsManager from './components/ReportsManager';
 import Analytics from './components/Analytics';
 import UserManagement from './components/UserManagement';
 import ChatBot from './components/ChatBot';
-import { ViewMode, Language, DashboardStats, Report, User as UserType } from './types';
+import { ViewMode, Language } from './types';
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
@@ -18,117 +19,10 @@ function App() {
     avatar: null
   });
 
-  // Mock data - in real app this would come from API
-  const [dashboardStats] = useState<DashboardStats>({
-    totalReports: 156,
-    newReports: 23,
-    inProgress: 45,
-    resolved: 88,
-    highPriority: 12,
-    averageResolutionTime: 5.2,
-    reportsByCategory: {
-      fraud: 45,
-      harassment: 32,
-      safety: 28,
-      corruption: 35,
-      other: 16
-    },
-    reportsByMonth: [
-      { month: 'Jan', count: 12 },
-      { month: 'Feb', count: 19 },
-      { month: 'Mar', count: 15 },
-      { month: 'Apr', count: 22 },
-      { month: 'May', count: 28 },
-      { month: 'Jun', count: 23 }
-    ],
-    riskTrends: [
-      { date: '2024-01', risk: 3.2 },
-      { date: '2024-02', risk: 2.8 },
-      { date: '2024-03', risk: 3.5 },
-      { date: '2024-04', risk: 2.9 },
-      { date: '2024-05', risk: 3.1 },
-      { date: '2024-06', risk: 2.7 }
-    ]
-  });
-
-  const [reports] = useState<Report[]>([
-    {
-      id: 'WB-001',
-      title: 'Dugaan Penyalahgunaan Dana Operasional',
-      category: 'fraud',
-      description: 'Terdapat indikasi penyalahgunaan dana operasional untuk kepentingan pribadi oleh pejabat di departemen keuangan.',
-      location: 'Departemen Keuangan - Lantai 3',
-      witnesses: 'Staf administrasi yang melihat transaksi mencurigakan',
-      evidence: 'Dokumen transaksi, email internal, rekaman percakapan',
-      contactPreference: 'Email aman (anonim)',
-      status: 'investigating',
-      priority: 'high',
-      submittedAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-20'),
-      assignedTo: 'INV-001',
-      investigator: {
-        id: 'INV-001',
-        name: 'Dr. Ahmad Santoso',
-        email: 'ahmad.santoso@bpkh.go.id',
-        role: 'investigator',
-        department: 'Internal Audit',
-        lastLogin: new Date(),
-        isActive: true
-      },
-      timeline: [],
-      attachments: [],
-      isAnonymous: true,
-      riskLevel: 8.5
-    },
-    {
-      id: 'WB-002',
-      title: 'Pelecehan di Tempat Kerja',
-      category: 'harassment',
-      description: 'Laporan pelecehan verbal dan intimidasi yang dilakukan oleh supervisor terhadap bawahan.',
-      location: 'Divisi SDM - Ruang Meeting B',
-      witnesses: 'Beberapa rekan kerja yang hadir dalam meeting',
-      evidence: 'Rekaman audio, testimoni saksi',
-      contactPreference: 'Pertemuan langsung (rahasia)',
-      status: 'new',
-      priority: 'critical',
-      submittedAt: new Date('2024-01-22'),
-      updatedAt: new Date('2024-01-22'),
-      timeline: [],
-      attachments: [],
-      isAnonymous: true,
-      riskLevel: 9.2
-    }
-  ]);
-
-  const [users] = useState<UserType[]>([
-    {
-      id: 'USR-001',
-      name: 'Dr. Ahmad Santoso',
-      email: 'ahmad.santoso@bpkh.go.id',
-      role: 'investigator',
-      department: 'Internal Audit',
-      lastLogin: new Date('2024-01-20'),
-      isActive: true
-    },
-    {
-      id: 'USR-002',
-      name: 'Siti Nurhaliza, S.H.',
-      email: 'siti.nurhaliza@bpkh.go.id',
-      role: 'manager',
-      department: 'Legal & Compliance',
-      lastLogin: new Date('2024-01-19'),
-      isActive: true
-    },
-    {
-      id: 'USR-003',
-      name: 'Budi Prasetyo, M.M.',
-      email: 'budi.prasetyo@bpkh.go.id',
-      role: 'admin',
-      department: 'IT & Security',
-      lastLogin: new Date('2024-01-21'),
-      isActive: true
-    }
-  ]);
+  // Use Supabase hooks for data
+  const { users, loading: usersLoading, error: usersError } = useUsers();
+  const { reports, loading: reportsLoading, error: reportsError } = useReports();
+  const { stats: dashboardStats, loading: statsLoading, error: statsError } = useDashboardStats();
 
   const translations = {
     id: {
@@ -146,11 +40,23 @@ function App() {
   const t = translations[language];
 
   const renderCurrentView = () => {
+    // Show loading state
+    if (usersLoading || reportsLoading || statsLoading) {
+      return (
+        <div className="p-6 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">{language === 'id' ? 'Memuat data...' : 'Loading data...'}</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard language={language} stats={dashboardStats} />;
+        return <Dashboard language={language} stats={dashboardStats || {} as any} />;
       case 'chat':
-        return <ChatBot language={language} />;
+        return <ChatBot language={language} onReportSubmit={() => window.location.reload()} />;
       case 'reports':
         return <ReportsManager language={language} reports={reports} />;
       case 'analytics':
@@ -174,7 +80,7 @@ function App() {
           </div>
         );
       default:
-        return <Dashboard language={language} stats={dashboardStats} />;
+        return <Dashboard language={language} stats={dashboardStats || {} as any} />;
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../lib/supabase';
 import { Send, Shield, Lock, FileText, AlertTriangle, Users, DollarSign, Heart, HardHat, MessageCircle, CheckCircle } from 'lucide-react';
 import { Language } from '../types';
 
@@ -22,9 +23,10 @@ interface ReportData {
 
 interface ChatBotProps {
   language: Language;
+  onReportSubmit?: () => void;
 }
 
-const ChatBot: React.FC<ChatBotProps> = ({ language }) => {
+const ChatBot: React.FC<ChatBotProps> = ({ language, onReportSubmit }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [currentStep, setCurrentStep] = useState('welcome');
@@ -251,9 +253,9 @@ const ChatBot: React.FC<ChatBotProps> = ({ language }) => {
         
       case 'review':
         if (userInput === t.submitReport) {
+          // Submit to Supabase
+          submitReportToDatabase();
           setCurrentStep('complete');
-          const reportId = Math.random().toString(36).substr(2, 9).toUpperCase();
-          addBotMessage(t.reportSubmitted.replace('{id}', reportId), [t.submitAnother, t.exit]);
         } else if (userInput === t.makeChanges) {
           setCurrentStep('category');
           addBotMessage(t.selectCategory, [], 'categorySelect');
@@ -277,6 +279,37 @@ const ChatBot: React.FC<ChatBotProps> = ({ language }) => {
           addBotMessage(t.thankYou);
         }
         break;
+    }
+  };
+
+  const submitReportToDatabase = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .insert([{
+          title: `${reportData.category} - ${new Date().toLocaleDateString()}`,
+          category: reportData.category.toLowerCase(),
+          description: reportData.description,
+          location: reportData.location,
+          witnesses: reportData.witnesses,
+          evidence: reportData.evidence,
+          contact_preference: reportData.contactPreference,
+          status: 'new',
+          priority: 'medium',
+          is_anonymous: true,
+          risk_level: 5.0
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const reportId = data.id.slice(-6).toUpperCase();
+      addBotMessage(t.reportSubmitted.replace('{id}', reportId), [t.submitAnother, t.exit]);
+      onReportSubmit?.();
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      addBotMessage('Terjadi kesalahan saat mengirim laporan. Silakan coba lagi.', [t.submitAnother]);
     }
   };
 
