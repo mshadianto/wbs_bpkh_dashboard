@@ -1,10 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface WhatsAppMessage {
   id: string;
@@ -21,24 +15,19 @@ interface WhatsAppWebhook {
   payload: WhatsAppMessage;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    )
-
     const webhook: WhatsAppWebhook = await req.json()
     
     if (webhook.event === 'message' && webhook.payload.body) {
       const message = webhook.payload
       
       // Process WhatsApp message for WBS
-      await processWhatsAppMessage(supabaseClient, message)
+      await processWhatsAppMessage(message)
     }
 
     return new Response(
@@ -59,36 +48,54 @@ serve(async (req) => {
   }
 })
 
-async function processWhatsAppMessage(supabase: any, message: WhatsAppMessage) {
+async function processWhatsAppMessage(message: WhatsAppMessage) {
   const text = message.body.toLowerCase()
   
   // Check if this is a report submission
   if (text.includes('lapor') || text.includes('report') || text.includes('whistleblow')) {
-    // Create a new report entry
-    const { data, error } = await supabase
-      .from('reports')
-      .insert([
-        {
-          title: `WhatsApp Report - ${new Date().toLocaleDateString()}`,
-          category: 'other',
-          description: message.body,
-          location: 'WhatsApp',
-          witnesses: '',
-          evidence: '',
-          contact_preference: 'WhatsApp',
-          status: 'new',
-          priority: 'medium',
-          is_anonymous: true,
-          risk_level: 5.0
-        }
-      ])
+    // Create a new report entry using direct API call
+    const reportData = {
+      title: `WhatsApp Report - ${new Date().toLocaleDateString()}`,
+      category: 'other',
+      description: message.body,
+      location: 'WhatsApp',
+      witnesses: '',
+      evidence: '',
+      contact_preference: 'WhatsApp',
+      status: 'new',
+      priority: 'medium',
+      is_anonymous: true,
+      risk_level: 5.0
+    }
 
-    if (!error) {
-      // Send confirmation message back
+    try {
+      // Use direct API call instead of Supabase client to avoid JWT issues
+      const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/rest/v1/reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': Deno.env.get('SUPABASE_ANON_KEY') || '',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY') || ''}`,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(reportData)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const reportId = data[0]?.id || 'unknown'
+        
+        // Send confirmation message back
+        await sendWhatsAppReply(message.from, 
+          `✅ Laporan Anda telah diterima dengan ID: WB-${reportId.slice(-6)}. 
+          Tim kami akan menindaklanjuti dalam 3-5 hari kerja. 
+          Terima kasih telah berani berbicara.`
+        )
+      }
+    } catch (error) {
+      console.error('Error creating report:', error)
       await sendWhatsAppReply(message.from, 
-        `✅ Laporan Anda telah diterima dengan ID: WB-${data[0].id.slice(-6)}. 
-        Tim kami akan menindaklanjuti dalam 3-5 hari kerja. 
-        Terima kasih telah berani berbicara.`
+        `❌ Maaf, terjadi kesalahan saat memproses laporan Anda. Silakan coba lagi nanti.`
       )
     }
   } else if (text.includes('help') || text.includes('bantuan')) {
