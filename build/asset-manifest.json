@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/wbs_bpkh_dashboard/static/css/main.ecaa3adb.css",
+    "main.js": "/wbs_bpkh_dashboard/static/js/main.1b1c8d8d.js",
+    "index.html": "/wbs_bpkh_dashboard/index.html",
+    "main.ecaa3adb.css.map": "/wbs_bpkh_dashboard/static/css/main.ecaa3adb.css.map",
+    "main.1b1c8d8d.js.map": "/wbs_bpkh_dashboard/static/js/main.1b1c8d8d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ecaa3adb.css",
+    "static/js/main.1b1c8d8d.js"
+  ]
+}
