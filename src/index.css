@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+<<<<<<< HEAD
 
 * {
   margin: 0;
@@ -24,3 +25,5 @@ body {
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-bounce { animation: bounce 1s infinite; }
 .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+=======
+>>>>>>> c6e03534be394315a1fca1a6de115173d383d99f
