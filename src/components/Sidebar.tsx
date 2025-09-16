@@ -6,6 +6,7 @@ import {
   Users, 
   Settings, 
   MessageCircle,
+  Smartphone,
   Shield,
   Bell,
   Search,
@@ -29,6 +30,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, language, 
       users: 'Pengguna',
       settings: 'Pengaturan',
       chatBot: 'Chat Bot',
+      whatsappBot: 'WhatsApp Bot',
+      simulation: 'Simulasi',
       notifications: 'Notifikasi'
     },
     en: {
@@ -38,6 +41,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, language, 
       users: 'Users',
       settings: 'Settings',
       chatBot: 'Chat Bot',
+      whatsappBot: 'WhatsApp Bot',
+      simulation: 'Simulation',
       notifications: 'Notifications'
     }
   };
@@ -47,6 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, language, 
   const menuItems = [
     { id: 'dashboard' as ViewMode, icon: LayoutDashboard, label: t.dashboard },
     { id: 'chat' as ViewMode, icon: MessageCircle, label: t.chatBot },
+    { id: 'whatsapp' as ViewMode, icon: Smartphone, label: t.whatsappBot },
+    { id: 'simulation' as ViewMode, icon: BarChart3, label: t.simulation },
     { id: 'reports' as ViewMode, icon: FileText, label: t.reports },
     { id: 'analytics' as ViewMode, icon: BarChart3, label: t.analytics },
     { id: 'users' as ViewMode, icon: Users, label: t.users },

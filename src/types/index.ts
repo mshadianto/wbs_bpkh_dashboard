@@ -63,4 +63,4 @@ export interface DashboardStats {
 
 export type Language = 'id' | 'en';
 
-export type ViewMode = 'chat' | 'dashboard' | 'reports' | 'analytics' | 'settings' | 'users';
+export type ViewMode = 'chat' | 'dashboard' | 'reports' | 'analytics' | 'settings' | 'users' | 'whatsapp' | 'simulation';

@@ -7,6 +7,8 @@ import ReportsManager from './components/ReportsManager';
 import Analytics from './components/Analytics';
 import UserManagement from './components/UserManagement';
 import ChatBot from './components/ChatBot';
+import WhatsAppBot from './components/WhatsAppBot';
+import SimulationDashboard from './components/SimulationDashboard';
 import { ViewMode, Language } from './types';
 
 function App() {
@@ -57,6 +59,10 @@ function App() {
         return <Dashboard language={language} stats={dashboardStats || {} as any} />;
       case 'chat':
         return <ChatBot language={language} onReportSubmit={() => window.location.reload()} />;
+      case 'whatsapp':
+        return <WhatsAppBot language={language} />;
+      case 'simulation':
+        return <SimulationDashboard language={language} />;
       case 'reports':
         return <ReportsManager language={language} reports={reports} />;
       case 'analytics':
